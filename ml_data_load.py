@@ -5,6 +5,12 @@ Created on Sat Oct 31 23:25:59 2020
 @author: 240022854
 """
 import pandas as pd
+import numpy as np
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder 
+from sklearn.linear_model import LinearRegression  
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import max_error
 
 #reading the data
 data = pd.read_csv("u.data",sep="\t", header=None)
@@ -42,6 +48,31 @@ data_combined = data_combined.merge(user, how = "outer", on="user_id")
 #addind mvovie info
 
 data_combined = data_combined.merge(items, how ="outer", on="movie_id")
+
+
+#encoding the data
+#label encoder for gender
+le = LabelEncoder()
+data_combined["gender"] = le.fit_transform(data_combined["gender"])
+data_combined["occupation"] = le.fit_transform(data_combined["occupation"])
+
+#dropping few columns
+data_combined.drop(["movie_title","release_date","video_release_date","IMDb_URL"],axis=1,inplace=True)
+
+#applying linear regression
+
+labels = data_combined["rating"]
+data_combined.drop(["rating","zip_code"], inplace=True, axis=1)
+
+X_train, X_test, y_train, y_test = train_test_split(data_combined, labels, test_size=0.33, random_state=42)
+reg = LinearRegression().fit(X_train, y_train)
+reg.coef_
+reg.intercept_
+
+y_pred = reg.predict(X_test)
+y_pred= pd.DataFrame(y_pred)
+
+
 
 
 
